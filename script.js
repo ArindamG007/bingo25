@@ -364,13 +364,13 @@ if (typeof document !== "undefined" && document.getElementById) {
   }
 
   function renderPlay() {
-    const winLine = state.won ? findWinLine() : null;
+    const winLine = findWinLine();
     for (let i = 0; i < CELLS; i++) {
       cellEls[i].classList.toggle("crossed", state.crossed.includes(state.grid[i]));
       cellEls[i].classList.toggle("win", !!winLine && winLine.includes(i));
     }
-    if (state.won) {
-      playStatus.textContent = "🎉 BINGO! You win — send the reveal code (shown again below).";
+    if (winLine) {
+      playStatus.textContent = "🎉 BINGO! You win — send the reveal code to your friend for verification.";
       playStatus.classList.add("ok");
     } else {
       const best = bestLineCount();
@@ -383,13 +383,10 @@ if (typeof document !== "undefined" && document.getElementById) {
     if (!isValidGrid(state.grid)) return;
     const num = state.grid[idx];
     const pos = state.crossed.indexOf(num);
-    if (state.won) {
-      callMsg.textContent = "Game over — reset crosses to play again.";
-      return;
-    }
     if (pos !== -1) {
       state.crossed.splice(pos, 1); // tap again to undo
       callMsg.textContent = "";
+      if (!findWinLine()) state.won = false; // re-arm Bingo if win line undone
     } else {
       state.crossed.push(num);
       if (checkWin()) return; // checkWin saves/renders itself
@@ -482,12 +479,15 @@ if (typeof document !== "undefined" && document.getElementById) {
   function checkWin() {
     const line = findWinLine();
     if (!line) return false;
+    const firstWin = !state.won; // avoid re-popping the overlay mid-game
     state.won = true;
     saveState();
     renderPlay();
-    document.getElementById("reveal-code").textContent = canonical(state.grid);
-    document.getElementById("bingo-overlay").hidden = false;
-    return true;
+    if (firstWin) {
+      document.getElementById("reveal-code").textContent = canonical(state.grid);
+      document.getElementById("bingo-overlay").hidden = false;
+    }
+    return firstWin;
   }
 
   document.getElementById("btn-bingo-close").addEventListener("click", () => {

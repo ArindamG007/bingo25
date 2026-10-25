@@ -170,6 +170,35 @@ if (typeof document !== "undefined" && document.getElementById) {
     } catch (e) { /* ignore (private mode etc.) */ }
   }
 
+  /* ---------- theme (light/dark) ---------- */
+
+  const THEME_KEY = "bingo25_theme";
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    const btn = document.getElementById("btn-theme");
+    if (btn) btn.textContent = theme === "light" ? "Dark mode" : "Light mode";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f2f4f8" : "#0f1115");
+  }
+
+  function initTheme() {
+    let theme = null;
+    try { theme = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
+    if (theme !== "light" && theme !== "dark") {
+      theme = (typeof matchMedia !== "undefined" && matchMedia("(prefers-color-scheme: light)").matches)
+        ? "light" : "dark";
+    }
+    applyTheme(theme);
+    document.getElementById("btn-theme").addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+      applyTheme(next);
+    });
+  }
+
+  initTheme();
+
   /* ---------- screen switching ---------- */
 
   let lastScreen = "screen-setup";

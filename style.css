@@ -8,6 +8,26 @@
   --accent-dark: #2ea043;
   --danger: #e5534b;
   --gold: #f0c674;
+  --crossed-bg: #16281a;
+  --crossed-fg: rgba(232, 234, 237, 0.45);
+  --callbar: rgba(15, 17, 21, 0.92);
+  --backdrop: rgba(0, 0, 0, 0.65);
+}
+
+:root[data-theme="light"] {
+  --bg: #f2f4f8;
+  --card: #ffffff;
+  --border: #d5d9e2;
+  --text: #1c2028;
+  --muted: #5b6270;
+  --accent: #1a7f37;
+  --accent-dark: #2ea043;
+  --danger: #c93d36;
+  --gold: #a97b0e;
+  --crossed-bg: #e9f5ec;
+  --crossed-fg: rgba(28, 32, 40, 0.4);
+  --callbar: rgba(255, 255, 255, 0.88);
+  --backdrop: rgba(28, 34, 44, 0.45);
 }
 
 * { box-sizing: border-box; }
@@ -22,7 +42,10 @@ body {
 }
 
 header {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   padding: 14px 0 4px;
 }
 
@@ -30,6 +53,30 @@ h1 {
   font-size: 1.35rem;
   margin: 0;
   letter-spacing: 0.5px;
+}
+
+.theme-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body,
+.grid input,
+.cell,
+.chip,
+textarea {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 main {
@@ -113,8 +160,8 @@ main {
 }
 
 .cell.crossed {
-  color: rgba(232, 234, 237, 0.45);
-  background: #16281a;
+  color: var(--crossed-fg);
+  background: var(--crossed-bg);
 }
 
 .cell.crossed::after {
@@ -178,7 +225,7 @@ main {
   gap: 10px;
   padding: 8px;
   border-radius: 14px;
-  background: rgba(15, 17, 21, 0.92);
+  background: var(--callbar);
   backdrop-filter: blur(6px);
 }
 
@@ -291,7 +338,7 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.65);
+  background: var(--backdrop);
   padding: 20px;
 }
 

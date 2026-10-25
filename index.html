@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>1–25 Bingo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>1–25 Bingo</h1>
+</header>
+<main>
+
+  <!-- SETUP -->
+  <section id="screen-setup">
+    <p class="hint">Fill the grid with numbers <b>1–25</b>, each used exactly once.
+    Keep your grid <b>secret</b> — you will only share the hash.</p>
+    <div class="grid" id="setup-grid"></div>
+    <p class="status" id="setup-status">0 / 25 filled</p>
+    <p class="status error" id="setup-error" hidden></p>
+    <div class="btn-row">
+      <button id="btn-random" class="btn secondary">Random</button>
+      <button id="btn-clear" class="btn secondary">Clear</button>
+      <button id="btn-hash" class="btn primary" disabled>Generate Hash</button>
+    </div>
+    <div class="btn-row single">
+      <button id="btn-go-verify" class="btn link">Verify a friend's win →</button>
+    </div>
+  </section>
+
+  <!-- HASH RESULT -->
+  <section id="screen-hash" hidden>
+    <p class="hint">Share this <b>hash</b> with your friend now (WhatsApp, etc.).
+    Don't reveal your grid!</p>
+    <code id="hash-out" class="hashbox"></code>
+    <div class="btn-row single">
+      <button id="btn-copy-hash" class="btn primary">Copy hash</button>
+    </div>
+    <div class="btn-row">
+      <button id="btn-start-play" class="btn primary">Start playing →</button>
+      <button id="btn-edit-grid" class="btn secondary">Edit grid</button>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="screen-play" hidden>
+    <div class="call-row">
+      <input id="call-input" type="text" inputmode="numeric" maxlength="2"
+             autocomplete="off" placeholder="Number called">
+      <button id="btn-call" class="btn primary">Cross</button>
+    </div>
+    <p class="status" id="call-msg"></p>
+    <div class="grid" id="play-grid"></div>
+    <p class="status" id="play-status"></p>
+    <div class="btn-row single">
+      <button id="btn-reset-crosses" class="btn secondary">Reset crosses</button>
+    </div>
+    <div class="btn-row single">
+      <button id="btn-go-verify-2" class="btn link">Verify a friend's win →</button>
+    </div>
+    <div class="btn-row single">
+      <button id="btn-edit-grid-2" class="btn link">← Edit my grid (makes a new hash)</button>
+    </div>
+  </section>
+
+  <!-- VERIFY -->
+  <section id="screen-verify" hidden>
+    <p class="hint">The winner sends you their <b>reveal code</b> (shown when
+    they get Bingo). Paste it below with the hash they shared before the game.</p>
+    <label class="label" for="verify-hash">Winner's hash (shared earlier)</label>
+    <textarea id="verify-hash" rows="2" spellcheck="false" placeholder="e.g. 9f86d081882c…"></textarea>
+    <label class="label" for="verify-reveal">Winner's reveal code</label>
+    <textarea id="verify-reveal" rows="3" spellcheck="false" placeholder="e.g. 12,5,23,7,…  (25 numbers)"></textarea>
+    <div class="btn-row single">
+      <button id="btn-verify" class="btn primary">Verify</button>
+    </div>
+    <p class="status" id="verify-result"></p>
+    <div class="btn-row single">
+      <button id="btn-back" class="btn link">← Back</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- BINGO overlay -->
+<div id="bingo-overlay" class="overlay" hidden>
+  <div class="modal">
+    <h2>🎉 BINGO — you win!</h2>
+    <p>Send this <b>reveal code</b> plus the hash you shared before the game,
+    so your friend can verify your grid.</p>
+    <code id="reveal-code" class="hashbox"></code>
+    <div class="btn-row single">
+      <button id="btn-copy-reveal" class="btn primary">Copy reveal code</button>
+    </div>
+    <div class="btn-row single">
+      <button id="btn-bingo-close" class="btn secondary">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

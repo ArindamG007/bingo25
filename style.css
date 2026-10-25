@@ -201,6 +201,46 @@ main {
   border-color: var(--accent-dark);
 }
 
+/* ---------- draw pool ---------- */
+
+.pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+
+.chip {
+  display: inline-block;
+  min-width: 34px;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.chip.hit {
+  color: var(--accent);
+  border-color: var(--accent-dark);
+  background: rgba(46, 160, 67, 0.12);
+}
+
+.chip.latest {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chip.hit.latest { color: var(--gold); }
+
+.chip.empty {
+  border-style: dashed;
+  color: var(--muted);
+}
+
 /* ---------- hash / reveal code ---------- */
 
 .hashbox {

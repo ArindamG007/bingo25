@@ -151,15 +151,17 @@ if (typeof document !== "undefined" && document.getElementById) {
     try {
       const s = JSON.parse(localStorage.getItem(STATE_KEY));
       if (s && isValidGrid(s.grid) && Array.isArray(s.crossed)) {
+        const valid = (n) => Number.isInteger(n) && n >= 1 && n <= 25;
         return {
           grid: s.grid,
           crossed: s.crossed.filter((n) => s.grid.includes(n)),
+          pool: Array.isArray(s.pool) ? s.pool.filter(valid) : [],
           won: !!s.won,
           hash: typeof s.hash === "string" ? s.hash : "",
         };
       }
     } catch (e) { /* ignore */ }
-    return { grid: [], crossed: [], won: false, hash: "" };
+    return { grid: [], crossed: [], pool: [], won: false, hash: "" };
   }
 
   function saveState() {
@@ -278,6 +280,7 @@ if (typeof document !== "undefined" && document.getElementById) {
     if (!isValidGrid(vals)) return;
     state.grid = vals;
     state.crossed = [];
+    state.pool = [];
     state.won = false;
     state.hash = await sha256Hex(canonical(vals));
     saveState();
@@ -290,6 +293,7 @@ if (typeof document !== "undefined" && document.getElementById) {
     setupInputs.forEach((inp) => { inp.value = ""; });
     state.grid = [];
     state.crossed = [];
+    state.pool = [];
     state.won = false;
     state.hash = "";
     saveState();
@@ -344,6 +348,7 @@ if (typeof document !== "undefined" && document.getElementById) {
   const playStatus = document.getElementById("play-status");
   const callMsg = document.getElementById("call-msg");
   const callInput = document.getElementById("call-input");
+  const poolEl = document.getElementById("pool");
   const cellEls = [];
 
   for (let i = 0; i < CELLS; i++) {
@@ -377,6 +382,26 @@ if (typeof document !== "undefined" && document.getElementById) {
       playStatus.textContent = `${state.crossed.length} of 25 crossed · closest line: ${best} / 5`;
       playStatus.classList.remove("ok");
     }
+    renderPool();
+  }
+
+  function renderPool() {
+    poolEl.innerHTML = "";
+    if (!state.pool.length) {
+      const empty = document.createElement("span");
+      empty.className = "chip empty";
+      empty.textContent = "nothing called yet";
+      poolEl.appendChild(empty);
+      return;
+    }
+    state.pool.forEach((n, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = n;
+      if (state.crossed.includes(n)) chip.classList.add("hit");
+      if (i === state.pool.length - 1) chip.classList.add("latest");
+      poolEl.appendChild(chip);
+    });
   }
 
   function toggleCross(idx) {
@@ -384,10 +409,15 @@ if (typeof document !== "undefined" && document.getElementById) {
     const num = state.grid[idx];
     const pos = state.crossed.indexOf(num);
     if (pos !== -1) {
-      state.crossed.splice(pos, 1); // tap again to undo
+      // uncross: drop the number from the draw pool as well (middle entries keep order)
+      state.crossed.splice(pos, 1);
+      const ppos = state.pool.indexOf(num);
+      if (ppos !== -1) state.pool.splice(ppos, 1);
       callMsg.textContent = "";
       if (!findWinLine()) state.won = false; // re-arm Bingo if win line undone
     } else {
+      // re-cross: append at the end = logged at its last call position
+      if (!state.pool.includes(num)) state.pool.push(num);
       state.crossed.push(num);
       if (checkWin()) return; // checkWin saves/renders itself
       callMsg.textContent = "";
@@ -406,9 +436,12 @@ if (typeof document !== "undefined" && document.getElementById) {
       callMsg.classList.add("error");
       return;
     }
+    const inPool = state.pool.includes(n);
     const idx = state.grid.indexOf(n);
     if (idx === -1) {
-      callMsg.textContent = `${n} is not in your grid.`;
+      if (!inPool) { state.pool.push(n); saveState(); renderPlay(); }
+      callMsg.textContent = inPool ? `${n} was called but is not in your grid.`
+                                   : `${n} is not in your grid (noted in the draw pool).`;
       callMsg.classList.add("error");
       return;
     }
@@ -417,6 +450,7 @@ if (typeof document !== "undefined" && document.getElementById) {
       callMsg.classList.add("error");
       return;
     }
+    if (!inPool) state.pool.push(n);
     state.crossed.push(n);
     callInput.value = "";
     if (checkWin()) return;
@@ -431,9 +465,28 @@ if (typeof document !== "undefined" && document.getElementById) {
     if (e.key === "Enter") { e.preventDefault(); doCall(); }
   });
 
+  /* undo the most recent call: remove from pool and un-cross if crossed */
+  document.getElementById("btn-undo-call").addEventListener("click", () => {
+    if (!state.pool.length) {
+      callMsg.textContent = "Nothing to undo — the draw pool is empty.";
+      return;
+    }
+    const n = state.pool.pop();
+    callMsg.classList.remove("error");
+    callMsg.textContent = `Undid call ${n}.`;
+    const pos = state.crossed.indexOf(n);
+    if (pos !== -1) {
+      state.crossed.splice(pos, 1);
+      if (!findWinLine()) state.won = false;
+    }
+    saveState();
+    renderPlay();
+  });
+
   document.getElementById("btn-reset-crosses").addEventListener("click", () => {
     if (state.crossed.length && !confirm("Clear all crosses and restart the game?")) return;
     state.crossed = [];
+    state.pool = [];
     state.won = false;
     saveState();
     callMsg.textContent = "";
